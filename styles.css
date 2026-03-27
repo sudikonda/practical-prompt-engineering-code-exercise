@@ -1,0 +1,132 @@
+:root {
+  --bg: #0b1020;
+  --panel: #11182d;
+  --panel-alt: #0f1730;
+  --border: #233154;
+  --text: #e8ecff;
+  --muted: #9aacd6;
+  --accent: #5ea1ff;
+  --accent-strong: #3f82de;
+  --danger: #ff6b81;
+  --danger-strong: #d75569;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  background: radial-gradient(circle at 20% 10%, #182447 0%, var(--bg) 40%);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app {
+  width: min(980px, 92vw);
+  margin: 48px auto;
+  display: grid;
+  gap: 24px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.app-header p {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.panel {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+label {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+input,
+textarea {
+  background: #0b1228;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+input:focus,
+textarea:focus {
+  outline: 2px solid rgba(94, 161, 255, 0.45);
+  border-color: var(--accent);
+}
+
+.btn-save,
+.btn-delete {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-save {
+  background: var(--accent);
+  color: #061020;
+}
+
+.btn-save:hover {
+  background: var(--accent-strong);
+}
+
+.list-panel h2 {
+  margin-top: 0;
+}
+
+.prompt-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.prompt-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0b1228;
+  padding: 14px;
+}
+
+.prompt-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.prompt-preview {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.btn-delete {
+  background: var(--danger);
+  color: #2b0710;
+}
+
+.btn-delete:hover {
+  background: var(--danger-strong);
+}
