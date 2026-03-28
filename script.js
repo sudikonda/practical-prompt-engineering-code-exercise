@@ -37,6 +37,166 @@ function setRating(promptId, rating) {
   }
 }
 
+function formatTimestamp(timestamp) {
+  const date = new Date(timestamp);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function addNote(promptId) {
+  const prompts = getPrompts();
+  const prompt = prompts.find((p) => p.id === promptId);
+  if (!prompt) return;
+
+  if (!prompt.notes) prompt.notes = [];
+
+  prompt.notes.unshift({
+    id: crypto.randomUUID(),
+    text: "",
+    createdAt: Date.now(),
+  });
+
+  savePrompts(prompts);
+  renderPrompts();
+}
+
+function saveNote(promptId, noteId, text) {
+  const prompts = getPrompts();
+  const prompt = prompts.find((p) => p.id === promptId);
+  if (!prompt || !prompt.notes) return;
+
+  const note = prompt.notes.find((n) => n.id === noteId);
+  if (note) {
+    note.text = text.trim();
+  }
+
+  savePrompts(prompts);
+}
+
+function deleteNote(promptId, noteId) {
+  const prompts = getPrompts();
+  const prompt = prompts.find((p) => p.id === promptId);
+  if (!prompt || !prompt.notes) return;
+
+  prompt.notes = prompt.notes.filter((n) => n.id !== noteId);
+  savePrompts(prompts);
+  renderPrompts();
+}
+
+function renderNotesSection(prompt) {
+  const notesSection = document.createElement("div");
+  notesSection.className = "notes-section";
+
+  const notesHeader = document.createElement("div");
+  notesHeader.className = "notes-header";
+
+  const headerLeft = document.createElement("div");
+  headerLeft.style.display = "flex";
+  headerLeft.style.alignItems = "center";
+  headerLeft.style.gap = "8px";
+
+  const notesTitle = document.createElement("h4");
+  notesTitle.textContent = "Notes";
+
+  const notesCount = document.createElement("span");
+  notesCount.className = "notes-count";
+  notesCount.textContent = prompt.notes ? prompt.notes.length : 0;
+
+  headerLeft.append(notesTitle, notesCount);
+
+  const addBtn = document.createElement("button");
+  addBtn.type = "button";
+  addBtn.className = "btn-add-note";
+  addBtn.textContent = "+ Add Note";
+  addBtn.addEventListener("click", () => addNote(prompt.id));
+
+  notesHeader.append(headerLeft, addBtn);
+
+  const notesContainer = document.createElement("div");
+  notesContainer.className = "notes-container";
+
+  if (prompt.notes && prompt.notes.length > 0) {
+    prompt.notes.forEach((note) => {
+      const noteEl = document.createElement("div");
+      noteEl.className = "note";
+
+      const noteText = document.createElement("p");
+      noteText.className = "note-text";
+      noteText.textContent = note.text || "(empty note)";
+
+      const noteMeta = document.createElement("div");
+      noteMeta.className = "note-meta";
+
+      const timestamp = document.createElement("span");
+      timestamp.textContent = formatTimestamp(note.createdAt);
+
+      const noteActions = document.createElement("div");
+      noteActions.className = "note-actions";
+
+      const editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "btn-edit-note";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => {
+        const editor = document.createElement("div");
+        editor.className = "note-editor";
+
+        const textarea = document.createElement("textarea");
+        textarea.value = note.text;
+        textarea.maxLength = 500;
+
+        const charCount = document.createElement("div");
+        charCount.className = "char-count";
+        charCount.textContent = `${note.text.length}/500`;
+
+        textarea.addEventListener("input", () => {
+          charCount.textContent = `${textarea.value.length}/500`;
+          charCount.classList.toggle("over-limit", textarea.value.length >= 500);
+        });
+
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "button";
+        saveBtn.className = "btn-save";
+        saveBtn.textContent = "Save";
+        saveBtn.style.marginTop = "8px";
+        saveBtn.addEventListener("click", () => {
+          saveNote(prompt.id, note.id, textarea.value);
+          renderPrompts();
+        });
+
+        textarea.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && e.ctrlKey) {
+            saveNote(prompt.id, note.id, textarea.value);
+            renderPrompts();
+          }
+        });
+
+        editor.append(textarea, charCount, saveBtn);
+        noteEl.innerHTML = "";
+        noteEl.appendChild(editor);
+      });
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "btn-delete-note";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", () => deleteNote(prompt.id, note.id));
+
+      noteActions.append(editBtn, deleteBtn);
+      noteMeta.append(timestamp, noteActions);
+      noteEl.append(noteText, noteMeta);
+      notesContainer.appendChild(noteEl);
+    });
+  }
+
+  notesSection.append(notesHeader, notesContainer);
+  return notesSection;
+}
+
 function renderStars(promptId, currentRating) {
   const container = document.createElement("div");
   container.className = "star-rating";
@@ -102,7 +262,9 @@ function renderPrompts() {
       renderPrompts();
     });
 
-    card.append(title, stars, preview, deleteBtn);
+    const notesSection = renderNotesSection(prompt);
+
+    card.append(title, stars, preview, deleteBtn, notesSection);
     promptList.appendChild(card);
   });
 }
@@ -120,6 +282,7 @@ form.addEventListener("submit", (event) => {
     title,
     content,
     userRating: 0,
+    notes: [],
   });
 
   savePrompts(prompts);
