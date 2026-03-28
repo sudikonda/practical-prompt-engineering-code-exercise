@@ -27,6 +27,54 @@ function contentPreview(text, wordCount = 8) {
   return `${words.slice(0, wordCount).join(" ")}...`;
 }
 
+function setRating(promptId, rating) {
+  const prompts = getPrompts();
+  const prompt = prompts.find((p) => p.id === promptId);
+  if (prompt) {
+    prompt.userRating = rating;
+    savePrompts(prompts);
+    renderPrompts();
+  }
+}
+
+function renderStars(promptId, currentRating) {
+  const container = document.createElement("div");
+  container.className = "star-rating";
+
+  for (let star = 1; star <= 5; star++) {
+    const starEl = document.createElement("span");
+    starEl.className = "star";
+    starEl.textContent = "★";
+    starEl.dataset.value = star;
+
+    if (star <= currentRating) {
+      starEl.classList.add("filled");
+    }
+
+    starEl.addEventListener("mouseenter", () => {
+      container
+        .querySelectorAll(".star")
+        .forEach((s, i) => {
+          s.classList.toggle("hover-preview", i < star);
+        });
+    });
+
+    starEl.addEventListener("mouseleave", () => {
+      container.querySelectorAll(".star").forEach((s, i) => {
+        s.classList.toggle("hover-preview", false);
+      });
+    });
+
+    starEl.addEventListener("click", () => {
+      setRating(promptId, star);
+    });
+
+    container.appendChild(starEl);
+  }
+
+  return container;
+}
+
 function renderPrompts() {
   const prompts = getPrompts();
   promptList.innerHTML = "";
@@ -37,6 +85,8 @@ function renderPrompts() {
 
     const title = document.createElement("h3");
     title.textContent = prompt.title;
+
+    const stars = renderStars(prompt.id, prompt.userRating || 0);
 
     const preview = document.createElement("p");
     preview.className = "prompt-preview";
@@ -52,7 +102,7 @@ function renderPrompts() {
       renderPrompts();
     });
 
-    card.append(title, preview, deleteBtn);
+    card.append(title, stars, preview, deleteBtn);
     promptList.appendChild(card);
   });
 }
@@ -69,6 +119,7 @@ form.addEventListener("submit", (event) => {
     id: crypto.randomUUID(),
     title,
     content,
+    userRating: 0,
   });
 
   savePrompts(prompts);
