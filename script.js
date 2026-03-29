@@ -2,6 +2,7 @@ const STORAGE_KEY = "promptLibraryItems";
 
 const form = document.getElementById("prompt-form");
 const titleInput = document.getElementById("title");
+const modelInput = document.getElementById("model");
 const contentInput = document.getElementById("content");
 const promptList = document.getElementById("prompt-list");
 
@@ -72,6 +73,14 @@ function saveNote(promptId, noteId, text) {
   const note = prompt.notes.find((n) => n.id === noteId);
   if (note) {
     note.text = text.trim();
+  }
+
+  if (prompt.metadata) {
+    try {
+      prompt.metadata = MetadataTracker.updateTimestamps(prompt.metadata);
+    } catch (error) {
+      console.error('Failed to update metadata timestamp:', error.message);
+    }
   }
 
   savePrompts(prompts);
@@ -236,7 +245,8 @@ function renderStars(promptId, currentRating) {
 }
 
 function renderPrompts() {
-  const prompts = getPrompts();
+  let prompts = getPrompts();
+  prompts = MetadataTracker.sortMetadataByCreatedAt(prompts, true);
   promptList.innerHTML = "";
 
   prompts.forEach((prompt) => {
@@ -263,8 +273,13 @@ function renderPrompts() {
     });
 
     const notesSection = renderNotesSection(prompt);
+    const metadataSection = MetadataTracker.renderMetadataSection(prompt.metadata);
 
-    card.append(title, stars, preview, deleteBtn, notesSection);
+    if (metadataSection) {
+      card.append(title, stars, preview, metadataSection, deleteBtn, notesSection);
+    } else {
+      card.append(title, stars, preview, deleteBtn, notesSection);
+    }
     promptList.appendChild(card);
   });
 }
@@ -273,22 +288,30 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const title = titleInput.value.trim();
+  const modelName = modelInput.value.trim() || 'unknown';
   const content = contentInput.value.trim();
   if (!title || !content) return;
 
-  const prompts = getPrompts();
-  prompts.unshift({
-    id: crypto.randomUUID(),
-    title,
-    content,
-    userRating: 0,
-    notes: [],
-  });
+  try {
+    const metadata = MetadataTracker.trackModel(modelName, content);
+    const prompts = getPrompts();
+    prompts.unshift({
+      id: crypto.randomUUID(),
+      title,
+      content,
+      userRating: 0,
+      notes: [],
+      metadata,
+    });
 
-  savePrompts(prompts);
-  form.reset();
-  titleInput.focus();
-  renderPrompts();
+    savePrompts(prompts);
+    form.reset();
+    titleInput.focus();
+    renderPrompts();
+  } catch (error) {
+    console.error('Failed to save prompt:', error.message);
+    alert(`Error: ${error.message}`);
+  }
 });
 
 renderPrompts();

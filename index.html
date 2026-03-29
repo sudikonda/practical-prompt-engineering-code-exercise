@@ -20,6 +20,10 @@
           <input id="title" name="title" type="text" required />
         </div>
         <div class="field">
+          <label for="model">Model Name</label>
+          <input id="model" name="model" type="text" placeholder="e.g., gpt-4, claude-3-opus" maxlength="100" />
+        </div>
+        <div class="field">
           <label for="content">Prompt Content</label>
           <textarea id="content" name="content" rows="6" required></textarea>
         </div>
@@ -33,6 +37,7 @@
     </section>
   </main>
 
-  <script src="script.js"></script>
-</body>
+  <script src="metadata.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>

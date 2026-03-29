@@ -276,3 +276,50 @@ textarea:focus {
 .note-editor .char-count.over-limit {
   color: var(--danger);
 }
+
+.metadata-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.metadata-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+
+.metadata-line:last-child {
+  margin-bottom: 0;
+}
+
+.metadata-label {
+  color: var(--muted);
+  min-width: 70px;
+}
+
+.metadata-value {
+  color: var(--text);
+}
+
+.token-estimate {
+  align-items: center;
+}
+
+.token-range {
+  font-family: inherit;
+  background: rgba(94, 161, 255, 0.15);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.confidence-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: #000;
+  font-weight: 600;
+  text-transform: uppercase;
+}
