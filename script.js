@@ -314,4 +314,9 @@ form.addEventListener("submit", (event) => {
   }
 });
 
+if (typeof ExportImportManager !== "undefined") {
+  ExportImportManager.setupExportButton("btn-export");
+  ExportImportManager.setupImportButton("btn-import");
+}
+
 renderPrompts();
